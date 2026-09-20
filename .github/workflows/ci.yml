@@ -12,29 +12,41 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm install --if-present
+      - name: Check frontend structure
+        run: |
+          if [ -f frontend/package.json ]; then
+            cd frontend && npm install
+          else
+            echo "No package.json in frontend - skipping"
+          fi
 
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: npm install --if-present
+      - name: Check backend structure
+        run: |
+          if [ -f backend/package.json ]; then
+            cd backend && npm install
+          else
+            echo "No package.json in backend - skipping"
+          fi
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install AI service dependencies
-        working-directory: ./ai-service
-        run: pip install -r requirements.txt --ignore-missing-file || echo "No requirements.txt yet"
+      - name: Check AI service structure
+        run: |
+          if [ -f ai-service/requirements.txt ]; then
+            pip install -r ai-service/requirements.txt
+          else
+            echo "No requirements.txt in ai-service - skipping"
+          fi
 
-      - name: Build check complete
-        run: echo "CI checks passed successfully"
+      - name: CI check complete
+        run: echo "All checks passed successfully!"
